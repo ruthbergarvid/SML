@@ -10,15 +10,8 @@ import sklearn.discriminant_analysis as skl_da
 import sklearn.neighbors as skl_nb
 
 bicycle_data = pd.read_csv("training_data_VT2026.csv", na_values='?', dtype={'ID': str}).dropna().reset_index()
-#print(bicycle_data)
 
-#måste göra om alla cykliska till sinus eller one hot coding
-#tänker att cykliska tar mindre på datorn
-
-#måste ha både sin och cos så att de kan motsvara koordinater på enhetscirkeln
-#sin ( 2pi *dag/7)
-#dag /7 ger ett värde upp till 1 på cirkeln vilket är toppen
-
+##cyclic data
 #hour of day
 bicycle_data['hour_sin'] = np.sin(2*np.pi*bicycle_data['hour_of_day']/24)
 bicycle_data['hour_cos'] = np.cos(2*np.pi*bicycle_data['hour_of_day']/24)
@@ -31,14 +24,9 @@ bicycle_data['month_cos'] = np.cos(2*np.pi*bicycle_data['month']/12)
 
 np.random.seed(1)
 
-#testar med olika mycket testdata, inte mer än 1500 för har inget att validera på annars
-#testar med steg av 50
 
-#borde testa med cross evaluation också
-##eller inte
-
-'''
-precission_variables = np.arange(500,1501,50, dtype=float)
+#different sample sizes
+accuracy_samplesize = np.arange(500,1501,50, dtype=float)
 
 ind = 0
 for i in range(500,1501,50) :
@@ -73,20 +61,20 @@ for i in range(500,1501,50) :
     prediction_test = np.empty(len(X_test), dtype= object)
     prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-    precission_variables[ind] = np.mean(prediction_test.squeeze() == Y_test.squeeze())
+    accuracy_samplesize[ind] = np.mean(prediction_test.squeeze() == Y_test.squeeze())
     print(np.mean(prediction_test.squeeze() == Y_test.squeeze()))
-    print(precission_variables[ind])
+    print(accuracy_samplesize[ind])
     ind = ind+1
     
 
 arr = np.arange(500,1501,50)
-print(precission_variables)
+print(accuracy_samplesize)
 #en array att kunna plotta mot
-plt.scatter(arr, precission_variables)
+plt.scatter(arr, accuracy_samplesize)
 plt.xlabel('Antal testdata')
 plt.ylabel('precission')
 plt.show()
-'''
+
 
 #bra vid 1050 och 1100
 
@@ -95,9 +83,9 @@ plt.show()
 #tar bort en feature i taget
 #från 15- 4
 
-'''
 
-precission_feature = np.zeros(11)
+
+accuracy_feature = np.zeros(11)
 
 train_index = np.random.choice(bicycle_data.shape[0], 1100, replace= False)
 
@@ -125,7 +113,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[10]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[10]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 ####################
  
@@ -141,7 +129,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[9]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[9]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 ##############
    
@@ -157,7 +145,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[8]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[8]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 #############
    
 X_train = traindata[['hour_sin', 'hour_cos', 'day_sin','day_cos', 'month_sin', 'month_cos', 'holiday', 'weekday', 'summertime', 'temp', 'dew', 'humidity', 'precip', 'snow', 'snowdepth']]
@@ -172,7 +160,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[7]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[7]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 ###############
    
@@ -188,7 +176,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[6]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[6]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 ####################
 
@@ -205,7 +193,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[5]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[5]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 ###############
 
@@ -222,7 +210,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[4]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[4]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 #################
 
@@ -239,7 +227,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[3]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[3]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 ######
 
@@ -256,7 +244,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[2]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[2]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 #########
 X_train = traindata[['hour_sin', 'hour_cos', 'day_sin','day_cos', 'month_sin', 'month_cos', 'holiday', 'weekday', 'summertime']]
@@ -270,7 +258,7 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[1]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[1]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 X_train = traindata[['hour_sin', 'hour_cos', 'day_sin','day_cos', 'month_sin', 'month_cos', 'holiday', 'weekday', 'summertime']]
 
 X_test = testdata[['hour_sin', 'hour_cos', 'day_sin','day_cos', 'month_sin', 'month_cos', 'holiday', 'weekday', 'summertime']]
@@ -283,22 +271,18 @@ predict_prob = model_log.predict_proba(X_test)
 prediction_test = np.empty(len(X_test), dtype= object)
 prediction_test = np.where(predict_prob[:,0] >=0.5, 'high_bike_demand', 'low_bike_demand')
 
-precission_feature[0]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
+accuracy_feature[0]= np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
 arr = np.arange(4,15)
-print(precission_feature)
+print(accuracy_feature)
 #en array att kunna plotta mot
-plt.plot(arr, precission_feature)
+plt.plot(arr, accuracy_feature)
 plt.xlabel('Number of features')
 plt.ylabel('Precission')
 plt.show()
 
 #bäst med 7
 #--> mina features är ['hour_sin', 'hour_cos', 'day_sin','day_cos', 'month_sin', 'month_cos', 'holiday', 'weekday', 'summertime', 'temp']
-
-'''
-
-
 
 #testar threshhold
 
@@ -325,21 +309,23 @@ model_log.fit(X_train, Y_train)
 
 predict_prob = model_log.predict_proba(X_test)
 
-precission_tresh = np.zeros(100)
+accuracy_tresh = np.zeros(100)
 
 for i in range(0,100):
 
     tresh = 0.01*i
     prediction_test = np.empty(len(X_test), dtype= object)
     prediction_test = np.where(predict_prob[:,0] >=tresh, 'high_bike_demand', 'low_bike_demand')
-    precission_tresh[i] = np.mean(prediction_test.squeeze() == Y_test.squeeze())
+    accuracy_tresh[i] = np.mean(prediction_test.squeeze() == Y_test.squeeze())
 
-plt.plot(np.linspace(0,1,100), precission_tresh)
+plt.plot(np.linspace(0,1,100), accuracy_tresh)
 plt.xlabel('treshold')
 plt.ylabel('precission')
 plt.show()
 
-print(max(precission_tresh))
+print(max(accuracy_tresh))
 
 ##best accuracy på tresh = 0.4
+
+#1100 samples, trashold 0,4, 7 features
 
