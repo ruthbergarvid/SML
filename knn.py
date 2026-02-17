@@ -37,10 +37,17 @@ def evaluate(feature_set):
 baseline = evaluate(features)
 print("All features:", baseline)
 
-for feature in features:
-    reduced = [f for f in features if f != feature]
-    score = evaluate(reduced)
-    print(f"Without {feature}: {score:.4f}")
+def features_scores(features):
+    lst = []
+    for feature in features:
+        reduced = [f for f in features if f != feature]
+        score = evaluate(reduced)
+        print(f"Without {feature}: {score:.4f}")
+        if score > baseline:
+            lst.append(feature)
+    return lst
+
+print(f'Use these features: {features_scores(features)}')
 
 used_features = [
     "hour_of_day", "weekday", "temp", "precip", "visibility"
@@ -91,3 +98,4 @@ print(conf_matrix)
 
 accuracy = (tp + tn) / (tp + tn + fp + fn)
 print(f"\nTest Accuracy: {accuracy:.3f}")
+
