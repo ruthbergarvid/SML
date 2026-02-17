@@ -47,7 +47,7 @@ def features_scores(features):
             lst.append(feature)
     return lst
 
-print(f'Use these features: {features_scores(features)}')
+print(f'Remove these features: {features_scores(features)}')
 
 used_features = [
     "hour_of_day", "weekday", "temp", "precip", "visibility"
@@ -98,4 +98,5 @@ print(conf_matrix)
 
 accuracy = (tp + tn) / (tp + tn + fp + fn)
 print(f"\nTest Accuracy: {accuracy:.3f}")
+
 
