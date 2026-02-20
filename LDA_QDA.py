@@ -9,10 +9,8 @@ n_folds = 10
 data = pd.read_csv('training_data_VT2026.csv', na_values='?', dtype={'ID': str}).dropna().reset_index()
 
 
-#input_labels = [col for col in data.columns if col!='increase_stock']
 output_labels = 'increase_stock'
 X = data.drop(columns=[output_labels])
-X = X.drop(columns=['summertime'])
 Y = data[output_labels]
 
 #x_train, x_test, y_train, y_test = skl_ms.train_test_split(data[input_labels], data[output_labels], test_size=0.3)
@@ -29,11 +27,12 @@ def test_model_cross_validation(X, Y, n_folds, threshold, solverr='svd'):
         y_train, y_val = Y.iloc[train_index], Y.iloc[val_index]
 
         if solverr in ['eigen', 'lsqr']:
-            model = skl_da.LinearDiscriminantAnalysis(solver=solverr, shrinkage='auto')
+            model = skl_da.LinearDiscriminantAnalysis(solver=solverr, shrinkage='auto', )
         else:
             model = skl_da.LinearDiscriminantAnalysis(solver=solverr)
-        model.fit(x_train, y_train)
 
+
+        model.fit(x_train, y_train)
 
         prediction_percent = model.predict_proba(x_val)
         prediction = (prediction_percent[:,0] >= threshold)
@@ -45,7 +44,7 @@ def test_model_cross_validation(X, Y, n_folds, threshold, solverr='svd'):
 
 
 def test_threshold():
-    thresholds = np.linspace(0, 1, 11)
+    thresholds = np.linspace(0, 1, 101)
     lowest_error = 1
     best_threshold = 0
     for i in thresholds:
@@ -59,19 +58,26 @@ def test_threshold():
 
 def test_included_data(data):
     output_labels = 'increase_stock'
-    droped_parameter = ''
+    best_droped_paramters = []
+    
     smallest_error = 1
-    for excluded_data in data.columns.tolist():
+    for i in range(500):
+        droped_parameters = []
+        for column in data.columns.tolist():
+            if column == output_labels:
+                break
+            if np.random.uniform() < 0.1:
+                droped_parameters.append(column)
         X = data.drop(columns=[output_labels])
-        if excluded_data != output_labels:
-            X = X.drop(columns=[excluded_data])
+        X = X.drop(columns=droped_parameters)
         Y = data[output_labels]
+
         new_error = test_model_cross_validation(X,Y,n_folds, 0.6)
-        print(new_error)
         if new_error < smallest_error:
             smallest_error = new_error
-            droped_parameter = excluded_data
-    return smallest_error, droped_parameter
+            best_droped_paramters = droped_parameters
+
+    return smallest_error, best_droped_paramters
 
 def test_solver(data):
     solvers = ['svd', 'lsqr', 'eigen']
@@ -79,18 +85,29 @@ def test_solver(data):
     best_solver = ''
     for solv in solvers:
         new_error = test_model_cross_validation(X, Y, n_folds, 0.6, solverr=solv)
-        print(new_error)
+        
         if new_error < best_error:
             best_error = new_error
             best_solver = solv
     return best_error, best_solver
 
 
+
+
 lowest_error, best_threshold = test_threshold()
 print('The lowest error was:', round(lowest_error,3), 'occuring with a threshold of:', round(best_threshold, 3))
 
-smallest_error, droped_parameter = test_included_data(data)
-print(smallest_error, droped_parameter)
+smallest_error, droped_parameters = test_included_data(data)
+print('The lowest error was:',smallest_error,'when removing:', droped_parameters)
 
 best_error, best_solver = test_solver(data)
-print(best_error, best_solver)
+print('The lowest error was:',best_error,'when using', best_solver)
+
+
+
+X = data.drop(columns=[output_labels])
+X = X.drop(columns=droped_parameters)
+Y = data[output_labels]
+
+b = test_model_cross_validation(X, Y, n_folds, best_threshold, best_solver)
+print("Together we get en error of", b, '( accuracy:', 1-b,')')
